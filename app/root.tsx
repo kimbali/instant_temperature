@@ -15,8 +15,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
 
-      <body>
-        <div className='md:container md:mx-auto py-20'>{children}</div>
+      <body className='dark:bg-gray-900 antialiased dark:text-gray-400'>
+        <div className='w-full px-4 mx-auto max-w-8xl'>{children}</div>
         <ScrollRestoration />
         <Scripts />
       </body>
