@@ -17,8 +17,8 @@ interface TomorrowParams {
 export class Tomorrow {
   apiKey = process.env.TOMORROW_KEY;
 
-  async getForecast({ lat = '42.3478', long = '-71.0466' }: TomorrowParams) {
-    // const url = `https://api.tomorrow.io/v4/weather/forecast?location=${lat},${long}&apikey=${this.apiKey}`;
+  async getForecast({ lat = '42.3478', lng = '-71.0466' }: TomorrowParams) {
+    // const url = `https://api.tomorrow.io/v4/weather/forecast?location=${lat},${lng}&apikey=${this.apiKey}`;
 
     // const response = await fetch(url);
 
@@ -51,7 +51,7 @@ export class Tomorrow {
 
   async getTrend({
     lat = '42.3478',
-    long = '-71.0466',
+    lng = '-71.0466',
     endDate = new Date(),
     totalDays = 7,
   }: TomorrowParams) {
@@ -61,7 +61,7 @@ export class Tomorrow {
 
     const params = {
       latitude: lat,
-      longitude: long,
+      longitude: lng,
       start_date: formatToHyphens(startDate),
       end_date: formatToHyphens(endDate),
       daily: [

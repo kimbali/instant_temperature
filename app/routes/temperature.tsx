@@ -1,9 +1,13 @@
 import { LoaderFunction, json } from '@remix-run/node';
+import { useState } from 'react';
 import CurrentTemperature from '~/components/temperature/CurrentTemperature';
 import ForecastComponent from '~/components/temperature/Forecast';
 import TrendComponent from '~/components/temperature/Trend';
 import { Title } from '~/components/text';
 import { Tomorrow } from '~/services/api/tomorrow';
+import { ClientOnly } from 'remix-utils/client-only';
+import type { LatLngExpression } from 'leaflet';
+import { Map } from '~/components/map/map.client';
 
 export interface OneDay {
   day: string;
@@ -47,8 +51,22 @@ export const loader: LoaderFunction = async () => {
 };
 
 export default function TemperaturePage() {
+  const mapHeight = '400px';
+  const [selectedLocation, setSelectedLocation] = useState<LatLngExpression>({
+    lat: 41.38694691885317,
+    lng: 2.1676698133663157,
+  });
+
+  const handleSelect = (location: LatLngExpression) => {
+    const { lat, lng } = location;
+
+    const coords = { lat, lng };
+
+    setSelectedLocation(coords);
+  };
+
   return (
-    <div className='w-full'>
+    <div className='pb-16 w-full'>
       <Title>Instant temperature</Title>
 
       <CurrentTemperature />
@@ -56,6 +74,23 @@ export default function TemperaturePage() {
       <ForecastComponent />
 
       <TrendComponent />
+
+      <ClientOnly
+        fallback={
+          <div
+            id='skeleton'
+            style={{ height: mapHeight, background: '#d1d1d1' }}
+          />
+        }
+      >
+        {() => (
+          <Map
+            height={mapHeight}
+            handleSelect={handleSelect}
+            position={selectedLocation}
+          />
+        )}
+      </ClientOnly>
     </div>
   );
 }

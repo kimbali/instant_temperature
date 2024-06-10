@@ -4,6 +4,10 @@ import stylesheet from '~/tailwind.css?url';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
+  {
+    rel: 'stylesheet',
+    href: 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css',
+  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
