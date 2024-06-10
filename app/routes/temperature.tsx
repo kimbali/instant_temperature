@@ -1,11 +1,11 @@
 import { LoaderFunction, json } from '@remix-run/node';
 import CurrentTemperature from '~/components/temperature/CurrentTemperature';
 import ForecastComponent from '~/components/temperature/Forecast';
+import TrendComponent from '~/components/temperature/Trend';
 import { Title } from '~/components/text';
 import { Tomorrow } from '~/services/api/tomorrow';
-import { formatDate, formatDay } from '~/utils/formatDate';
 
-export interface Forecast {
+export interface OneDay {
   day: string;
   date: string;
   temperatureAvg: number;
@@ -15,42 +15,35 @@ export interface Forecast {
 
 export interface TemperatureDate {
   currentTemperature: number;
-  forecast: Forecast[];
+  forecast: OneDay[];
+  trend: OneDay[];
 }
 
 const tomorrowCtrl = new Tomorrow();
 
 export const loader: LoaderFunction = async () => {
-  const response = await tomorrowCtrl.getForecast({
+  const resForecast = await tomorrowCtrl.getForecast({
     lat: '42.3478',
     long: '-71.0466',
   });
 
-  if (response.error) {
+  const resTrend = await tomorrowCtrl.getTrend({
+    lat: '42.3478',
+    long: '-71.0466',
+  });
+
+  if (resForecast.error || resTrend.error) {
     return json(
-      { error: response.error.message },
-      { status: response.error.status }
+      { error: `${resForecast.error.message} // ${resTrend.error}` },
+      { status: resForecast.error.status || resTrend.error.status }
     );
   }
 
-  const forecast: Forecast[] = response.timelines?.daily.map(element => {
-    return {
-      day: formatDay(element.time),
-      date: formatDate(element.time),
-      temperatureAvg: Math.round(element.values.temperatureAvg),
-      temperatureMax: Math.round(element.values.temperatureMax),
-      temperatureMin: Math.round(element.values.temperatureMin),
-    };
-  });
-
-  const data = {
-    currentTemperature: Math.round(
-      response.timelines?.minutely[0]?.values.temperature
-    ),
-    forecast,
+  return {
+    currentTemperature: resForecast.currentTemperature,
+    forecast: resForecast.forecast,
+    trend: resTrend,
   };
-
-  return data;
 };
 
 export default function TemperaturePage() {
@@ -62,7 +55,7 @@ export default function TemperaturePage() {
 
       <ForecastComponent />
 
-      {/* <TrendComponent /> */}
+      <TrendComponent />
     </div>
   );
 }

@@ -1,31 +1,24 @@
-import { formatToISOString } from '~/utils/formatDate';
-import forecastData from '../moked/forecast.json'
+import {
+  formatDate,
+  formatDay,
+  formatToHyphens,
+} from '~/utils/formatDate';
+import forecastData from '../moked/forecast.json';
+import { OneDay } from '~/routes/temperature';
+import { fetchWeatherApi } from 'openmeteo';
 
-interface LatLong {
-  lat: string,
-  long: string
+interface TomorrowParams {
+  lat: string;
+  long: string;
+  endDate?: Date;
+  totalDays?: number;
 }
 
 export class Tomorrow {
-  // apiKey = process.env.NODE_ENV;
+  apiKey = process.env.TOMORROW_KEY;
 
-  async getForecast({ lat = '42.3478', long =  '-71.0466'}: LatLong) {
-    // const url = `https://api.tomorrow.io/v4/weather/forecast?location=42.3478,-71.0466&apikey=${apiKey}`;
-
-    // const response = await fetch(url);
-
-    // if (!response.ok) {
-    //   throw new Error(`HTTP error! status: ${response.status}`);
-    // }
-
-    // const result = await response.json();
-
-    const result = forecastData;
-    return result;
-  }
-
-  async getCurrentTemperature({ lat = '42.3478', long =  '-71.0466'}: LatLong) {
-    // const url = `https://api.tomorrow.io/v4/weather/forecast?location=${lat},${long}&apikey=${apiKey}`;
+  async getForecast({ lat = '42.3478', long = '-71.0466' }: TomorrowParams) {
+    // const url = `https://api.tomorrow.io/v4/weather/forecast?location=${lat},${long}&apikey=${this.apiKey}`;
 
     // const response = await fetch(url);
 
@@ -34,41 +27,92 @@ export class Tomorrow {
     // }
 
     // const result = await response.json();
-
     const result = forecastData;
 
-    return result.timelines?.minutely[0]?.values.temperature || null;
-  }
+    const forecast: OneDay[] = result?.timelines?.daily.map(element => {
+      return {
+        day: formatDay(element.time),
+        date: formatDate(element.time),
+        temperatureAvg: Math.round(element.values.temperatureAvg),
+        temperatureMax: Math.round(element.values.temperatureMax),
+        temperatureMin: Math.round(element.values.temperatureMin),
+      };
+    });
 
-  async getTrendFromToday({ lat = '42.3478', long =  '-71.0466' }: LatLong) {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 7);
-
-    const url = "https://api.tomorrow.io/v4/timelines";
-    const options = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            // "apikey": this.apiKey
-        },
-        body: JSON.stringify({
-            location: `${lat},${long}`,
-            fields: ["temperature"],
-            timesteps: ["1d"],
-            startTime: formatToISOString(startDate),
-            endTime: formatToISOString(endDate),
-            units: "metric"
-        })
+    const data = {
+      currentTemperature: Math.round(
+        result.timelines?.minutely[0]?.values.temperature
+      ),
+      forecast,
     };
 
-    try {
-        const response = await fetch(url, options);
-        const data = await response.json();
+    return data;
+  }
 
-        return data;
-    } catch (error) {
-        console.error("Error fetching historical weather data:", error);
+  async getTrend({
+    lat = '42.3478',
+    long = '-71.0466',
+    endDate = new Date(),
+    totalDays = 7,
+  }: TomorrowParams) {
+    const startDate = new Date(
+      endDate.getTime() - totalDays * 24 * 60 * 60 * 1000
+    );
+
+    const params = {
+      latitude: lat,
+      longitude: long,
+      start_date: formatToHyphens(startDate),
+      end_date: formatToHyphens(endDate),
+      daily: [
+        'temperature_2m_max',
+        'temperature_2m_min',
+        'temperature_2m_mean',
+      ],
+      timezone: 'Europe/London',
+    };
+    const url = 'https://archive-api.open-meteo.com/v1/archive';
+    const responses = await fetchWeatherApi(url, params);
+
+    // Helper function to form time ranges
+    const range = (start: number, stop: number, step: number) =>
+      Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
+
+    // Process first location. Add a for-loop for multiple locations or weather models
+    const response = responses[0];
+
+    // Attributes for timezone and location
+    const utcOffsetSeconds = response.utcOffsetSeconds();
+
+    const daily = response.daily()!;
+
+    const weatherData = {
+      daily: {
+        time: range(
+          Number(daily.time()),
+          Number(daily.timeEnd()),
+          daily.interval()
+        ).map(t => new Date((t + utcOffsetSeconds) * 1000)),
+        temperature2mMax: daily.variables(0)!.valuesArray()!,
+        temperature2mMin: daily.variables(1)!.valuesArray()!,
+        temperature2mMean: daily.variables(2)!.valuesArray()!,
+      },
+    };
+
+    const trendArray = [];
+
+    for (let i = 0; i < weatherData.daily.time.length; i++) {
+      if (weatherData.daily.temperature2mMax[i]) {
+        trendArray.push({
+          day: formatDay(weatherData.daily.time[i].toISOString()),
+          date: formatDate(weatherData.daily.time[i].toISOString()),
+          temperatureMax: Math.round(weatherData.daily.temperature2mMax[i]),
+          temperatureMin: Math.round(weatherData.daily.temperature2mMin[i]),
+          temperatureMean: Math.round(weatherData.daily.temperature2mMean[i]),
+        });
+      }
     }
+
+    return trendArray;
   }
 }

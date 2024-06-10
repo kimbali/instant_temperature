@@ -1,8 +1,8 @@
 import { LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { Card } from '~/components/card';
-import { Text, Title } from '~/components/text';
-import { Forecast, TemperatureDate } from '~/routes/temperature';
+import { Text } from '~/components/text';
+import { OneDay, TemperatureDate } from '~/routes/temperature';
 
 export const loader: LoaderFunction = async ({ routeLoaderData }) => {
   return routeLoaderData;
@@ -11,32 +11,22 @@ export const loader: LoaderFunction = async ({ routeLoaderData }) => {
 export default function TrendComponent() {
   const data: TemperatureDate = useLoaderData();
 
+  if (!data) return null;
   return (
-    <div className='w-full'>
-      <Title>Instant temperature</Title>
-
-      <Card
-        title='Current temperature'
-        className='w-fit flex flex-col items-center justify-between'
-      >
-        <Text size='text-7xl'>{data.currentTemperature}ºC</Text>
-      </Card>
-
-      <div className='grid auto-rows-auto gap-4 grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] mt-10 w-full'>
-        {data.forecast.map((element: Forecast, index: number) => (
-          <Card
-            key={`forecast${index}`}
-            className='ml-3 flex flex-col items-center justify-between'
-          >
-            <Text color='text-gray-50'>{element.day}</Text>
-            <Text className='mb-3'>{element.date}</Text>
-            <Text size='text-2xl'>
-              <span className='text-cyan-600'>{element.temperatureMin}º</span> -{' '}
-              <span className='text-red-600'>{element.temperatureMax}º</span>
-            </Text>
-          </Card>
-        ))}
-      </div>
+    <div className='mt-10 mb-10 w-full overflow-y-scroll no-scrollbar flex'>
+      {data.trend.map((element: OneDay, index: number) => (
+        <Card
+          key={`forecast${index}`}
+          className='mr-10 mb-10 w-60 min-w-48 flex flex-col items-center justify-between'
+        >
+          <Text color='text-gray-50'>{element.day}</Text>
+          <Text className='mb-3'>{element.date}</Text>
+          <Text size='text-2xl'>
+            <span className='text-cyan-600'>{element.temperatureMin}º</span> -{' '}
+            <span className='text-red-600'>{element.temperatureMax}º</span>
+          </Text>
+        </Card>
+      ))}
     </div>
   );
 }

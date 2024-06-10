@@ -2,7 +2,7 @@ import { LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { Card } from '~/components/card';
 import { Text } from '~/components/text';
-import { Forecast, TemperatureDate } from '~/routes/temperature';
+import { OneDay, TemperatureDate } from '~/routes/temperature';
 
 export const loader: LoaderFunction = async ({ routeLoaderData }) => {
   return routeLoaderData;
@@ -14,7 +14,7 @@ export default function ForecastComponent() {
   if (!data) return null;
   return (
     <div className='mt-10 mb-10 w-full overflow-y-scroll no-scrollbar flex'>
-      {data.forecast.map((element: Forecast, index: number) => (
+      {data.forecast.map((element: OneDay, index: number) => (
         <Card
           key={`forecast${index}`}
           className='mr-10 mb-10 w-60 min-w-48 flex flex-col items-center justify-between'

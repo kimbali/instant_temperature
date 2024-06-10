@@ -20,7 +20,6 @@ const authCtrl = new Auth();
  *
  */
 export const loader: LoaderFunction = async ({ request }) => {
-  console.log('req', request);
   await authenticator.isAuthenticated(request, {
     successRedirect: ENV.ROUTES.HOME,
   });
