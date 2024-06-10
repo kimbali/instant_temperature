@@ -2,7 +2,19 @@ import React from 'react';
 
 interface TextProps {
   children: React.ReactNode;
+  size?: string;
+  color?: string;
+  className?: string;
 }
-export function Text({ children }: TextProps) {
-  return <p className='text-lg font-medium text-gray-900 '>{children}</p>;
+export function Text({
+  children,
+  size,
+  color = '',
+  className = '',
+}: TextProps) {
+  return (
+    <p className={`font-normal ${size || 'text-base'} ${color} ${className}`}>
+      {children}
+    </p>
+  );
 }
