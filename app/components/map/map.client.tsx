@@ -7,6 +7,7 @@ import {
   Popup,
   useMapEvents,
 } from 'react-leaflet';
+import { Text } from '../text';
 
 export function Map({
   height,
@@ -34,7 +35,7 @@ export function Map({
   };
 
   return (
-    <div style={{ height }}>
+    <div style={{ height }} className='mb-10'>
       <MapContainer
         style={{
           height: '100%',
@@ -50,6 +51,10 @@ export function Map({
 
         <LocationMarker />
       </MapContainer>
+
+      <Text>
+        <span>Lat: {position?.lat}</span>, Lng: <span>{position?.lng}</span>
+      </Text>
     </div>
   );
 }

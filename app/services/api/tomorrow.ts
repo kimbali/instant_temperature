@@ -9,7 +9,7 @@ import { fetchWeatherApi } from 'openmeteo';
 
 interface TomorrowParams {
   lat: string;
-  long: string;
+  lng: string;
   endDate?: Date;
   totalDays?: number;
 }
@@ -17,7 +17,7 @@ interface TomorrowParams {
 export class Tomorrow {
   apiKey = process.env.TOMORROW_KEY;
 
-  async getForecast({ lat = '42.3478', lng = '-71.0466' }: TomorrowParams) {
+  async getForecast({ lat, lng }: TomorrowParams) {
     // const url = `https://api.tomorrow.io/v4/weather/forecast?location=${lat},${lng}&apikey=${this.apiKey}`;
 
     // const response = await fetch(url);
@@ -50,8 +50,8 @@ export class Tomorrow {
   }
 
   async getTrend({
-    lat = '42.3478',
-    lng = '-71.0466',
+    lat,
+    lng,
     endDate = new Date(),
     totalDays = 7,
   }: TomorrowParams) {

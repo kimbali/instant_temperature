@@ -1,15 +1,21 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+  json,
+} from '@remix-run/node';
 import { useEffect, useState } from 'react';
 import CurrentTemperature from '~/components/temperature/CurrentTemperature';
 import ForecastComponent from '~/components/temperature/Forecast';
 import TrendComponent from '~/components/temperature/Trend';
-import { Text, Title } from '~/components/text';
+import { Title } from '~/components/text';
 import { Tomorrow } from '~/services/api/tomorrow';
 import { ClientOnly } from 'remix-utils/client-only';
 import type { LatLngExpression } from 'leaflet';
 import { Map } from '~/components/map/map.client';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import { commitSession, getSession } from '~/services/session.server';
+import { GeoLocation } from '~/services/api/geolocation';
 
 export interface OneDay {
   day: string;
@@ -21,41 +27,63 @@ export interface OneDay {
 
 export interface TemperatureDate {
   currentTemperature: number;
+  geoLocation: string;
   forecast: OneDay[];
   trend: OneDay[];
+  latitude: number;
+  longitude: number;
 }
 
+export interface LatLng {
+  latitude: number;
+  longitude: number;
+}
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'New Remix App' },
+    { name: 'description', content: 'Welcome to Remix!' },
+  ];
+};
+
 const tomorrowCtrl = new Tomorrow();
+const geoLocationCtrl = new GeoLocation();
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('cookie'));
   const latitude = session.get('latitude');
   const longitude = session.get('longitude');
 
-  const resForecast = await tomorrowCtrl.getForecast({
-    lat: '42.3478',
-    long: '-71.0466',
-  });
+  const latLng = {
+    lat: latitude || 41.38694691885317,
+    lng: longitude || 2.1676698133663157,
+  };
 
-  const resTrend = await tomorrowCtrl.getTrend({
-    lat: latitude || '42.3478',
-    long: longitude || '-71.0466',
-  });
+  if (latitude && longitude) {
+    const resForecast = await tomorrowCtrl.getForecast(latLng);
+    const resTrend = await tomorrowCtrl.getTrend(latLng);
+    const geoLocation = await geoLocationCtrl.getLocationName(latLng);
 
-  if (resForecast.error || resTrend.error) {
-    return json(
-      { error: `${resForecast.error.message} // ${resTrend.error}` },
-      { status: resForecast.error.status || resTrend.error.status }
-    );
+    if (resForecast.error || resTrend.error || geoLocation.error) {
+      return json(
+        {
+          error: `${resForecast.error.message} // ${resTrend.error.message} // ${geoLocation.error.message}`,
+        },
+        { status: resForecast.error.status || resTrend.error.status }
+      );
+    }
+
+    return json({
+      currentTemperature: resForecast.currentTemperature,
+      forecast: resForecast.forecast,
+      trend: resTrend,
+      latitude,
+      longitude,
+      geoLocation,
+    });
   }
 
-  return json({
-    currentTemperature: resForecast.currentTemperature,
-    forecast: resForecast.forecast,
-    trend: resTrend,
-    latitude,
-    longitude,
-  });
+  return null;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -72,14 +100,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function TemperaturePage() {
   const mapHeight = '400px';
-  const { latitude, longitude } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
 
   const [selectedLocation, setSelectedLocation] = useState<LatLngExpression>({
-    lat: latitude || 41.38694691885317,
-    lng: longitude || 2.1676698133663157,
+    lat: data?.latitude,
+    lng: data?.longitude,
   });
 
-  const updatePosition = ({ latitude, longitude }) => {
+  const updatePosition = ({ latitude, longitude }: LatLng) => {
     setSelectedLocation({ lat: latitude, lng: longitude });
     fetcher.submit(
       { latitude, longitude },
@@ -104,17 +132,14 @@ export default function TemperaturePage() {
     <div className='pb-16 w-full'>
       <Title>Instant temperature</Title>
 
-      <CurrentTemperature />
-
-      <ForecastComponent />
-
-      <TrendComponent />
-
       <ClientOnly
         fallback={
           <div
             id='skeleton'
-            style={{ height: mapHeight, background: '#d1d1d1' }}
+            style={{
+              height: mapHeight,
+              background: '#d1d1d1',
+            }}
           />
         }
       >
@@ -127,9 +152,11 @@ export default function TemperaturePage() {
         )}
       </ClientOnly>
 
-      <Text>
-        <span>Lat: {latitude}</span>, Lng: <span>{longitude}</span>
-      </Text>
+      <CurrentTemperature />
+
+      <ForecastComponent />
+
+      <TrendComponent />
     </div>
   );
 }

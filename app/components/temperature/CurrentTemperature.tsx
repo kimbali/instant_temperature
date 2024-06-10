@@ -18,6 +18,7 @@ export default function CurrentTemperature() {
         title='Current temperature'
         className='w-fit flex flex-col items-center justify-between'
       >
+        <Text size='text-3xl mb-3'>{data.geoLocation}</Text>
         <Text size='text-7xl'>{data.currentTemperature}ºC</Text>
       </Card>
     </div>
