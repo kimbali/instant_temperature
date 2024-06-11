@@ -1,11 +1,5 @@
-import React from 'react';
+import { TextProps } from '~/utils/types';
 
-interface TextProps {
-  children: React.ReactNode;
-  size?: string;
-  color?: string;
-  className?: string;
-}
 export function Text({
   children,
   size,

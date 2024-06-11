@@ -1,8 +1,4 @@
-import React from 'react';
-
-interface SubtitleProps {
-  children: React.ReactNode;
-}
+import { SubtitleProps } from '~/utils/types';
 
 export function Subtitle({ children }: SubtitleProps) {
   return (

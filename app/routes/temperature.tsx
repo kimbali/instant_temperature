@@ -6,38 +6,17 @@ import {
 } from '@remix-run/node';
 import { useEffect, useState } from 'react';
 import MinMaxTemperatures from '~/components/temperature/MinMaxTemperatures';
-import { Subtitle, Title } from '~/components/text';
 import { Tomorrow } from '~/services/api/tomorrow';
 import { ClientOnly } from 'remix-utils/client-only';
-import type { LatLngExpression } from 'leaflet';
 import { Map } from '~/components/map/map.client';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import { commitSession, getSession } from '~/services/session.server';
 import { GeoLocation } from '~/services/api/geolocation';
 import TemperatureChart from '~/components/chart/TemperatureChart';
-import { Button } from '~/components/button';
-
-export interface OneDay {
-  day: string;
-  date: string;
-  temperatureAvg: number;
-  temperatureMax: number;
-  temperatureMin: number;
-}
-
-export interface TemperatureDate {
-  currentTemperature: number;
-  geoLocation: string;
-  forecast: OneDay[];
-  trend: OneDay[];
-  latitude: number;
-  longitude: number;
-}
-
-export interface LatLng {
-  latitude: number;
-  longitude: number;
-}
+import { LatLngEx, TemperatureDate } from '~/utils/types';
+import { Button } from '~/components/button/Button';
+import { Subtitle } from '~/components/text/Subtitle';
+import { Title } from '~/components/text/Title';
 
 export const meta: MetaFunction = () => {
   return [
@@ -50,27 +29,26 @@ const tomorrowCtrl = new Tomorrow();
 const geoLocationCtrl = new GeoLocation();
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('cookie'));
-  const latitude = session.get('latitude');
-  const longitude = session.get('longitude');
+  try {
+    const session = await getSession(request.headers.get('cookie'));
+    const latitude = session.get('latitude') || 41.38694691885317;
+    const longitude = session.get('longitude') || 2.1676698133663157;
 
-  const latLng = {
-    lat: latitude || 41.38694691885317,
-    lng: longitude || 2.1676698133663157,
-  };
+    const latLng = { lat: latitude, lng: longitude };
 
-  if (latitude && longitude) {
-    const resForecast = await tomorrowCtrl.getForecast(latLng);
-    const resTrend = await tomorrowCtrl.getTrend(latLng);
-    const geoLocation = await geoLocationCtrl.getLocationName(latLng);
+    const [resForecast, resTrend, geoLocation] = await Promise.all([
+      tomorrowCtrl.getForecast(latLng),
+      tomorrowCtrl.getTrend(latLng),
+      geoLocationCtrl.getLocationName(latLng),
+    ]);
 
-    if (resForecast.error || resTrend.error || geoLocation.error) {
-      return json(
-        {
-          error: `${resForecast.error.message} // ${resTrend.error.message} // ${geoLocation.error.message}`,
-        },
-        { status: resForecast.error.status || resTrend.error.status }
-      );
+    if (resForecast.error || resTrend.error || !geoLocation) {
+      const status = resForecast.error
+        ? resForecast.error.status
+        : resTrend.error
+        ? resTrend.error.status
+        : 500;
+      return json({ error: 'Error while fetching data' }, { status });
     }
 
     return json({
@@ -81,9 +59,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       longitude,
       geoLocation,
     });
+  } catch (error) {
+    console.error('Error in loader:', error);
+    return json({ error: 'Internal Server Error' }, { status: 500 });
   }
-
-  return null;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -100,35 +79,35 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function TemperaturePage() {
   const mapHeight = '400px';
-  const data = useLoaderData<typeof loader>();
+  const data = useLoaderData<TemperatureDate>();
   const [showTrend, setShowTrend] = useState(false);
 
-  const [selectedLocation, setSelectedLocation] = useState<LatLngExpression>({
+  const [selectedLocation, setSelectedLocation] = useState<LatLngEx>({
     lat: data?.latitude,
     lng: data?.longitude,
   });
 
-  const updatePosition = ({ latitude, longitude }: LatLng) => {
-    setSelectedLocation({ lat: latitude, lng: longitude });
+  const updatePosition = ({ lat, lng }: LatLngEx) => {
+    setSelectedLocation({ lat, lng });
     fetcher.submit(
-      { latitude, longitude },
+      { latitude: lat, longitude: lng },
       { method: 'post', encType: 'application/json' }
     );
   };
 
-  const handleSelect = (location: LatLngExpression) => {
-    const { lat, lng } = location;
-    updatePosition({ latitude: lat, longitude: lng });
+  const handleSelect = (location: LatLngEx) => {
+    updatePosition(location);
   };
 
   const fetcher = useFetcher();
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = position.coords;
-      updatePosition({ latitude, longitude });
+      updatePosition({ lat: latitude, lng: longitude });
     });
   }, []);
 
+  if (!data) return null;
   return (
     <div className='pb-16 max-w-screen-lg mx-auto'>
       <div className='flex flex-col items-center lg:items-start'>

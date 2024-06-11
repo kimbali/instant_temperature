@@ -1,9 +1,4 @@
-import React from 'react';
-
-interface ErrorMessageProps {
-  children: React.ReactNode;
-  hasError: boolean;
-}
+import { ErrorMessageProps } from '~/utils/types';
 
 export function ErrorMessage({ children, hasError }: ErrorMessageProps) {
   if (!hasError) return null;
@@ -17,5 +12,3 @@ export function ErrorMessage({ children, hasError }: ErrorMessageProps) {
     </div>
   );
 }
-
-export default ErrorMessage;

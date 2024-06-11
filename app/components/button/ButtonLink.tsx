@@ -1,12 +1,6 @@
 import { Link } from '@remix-run/react';
 import classNames from 'classnames';
-import React from 'react';
-
-interface ButtonLinkProps {
-  children: React.ReactNode;
-  to: string;
-  primary?: boolean;
-}
+import { ButtonLinkProps } from '~/utils/types';
 
 export function ButtonLink({ children, primary, to }: ButtonLinkProps) {
   return (

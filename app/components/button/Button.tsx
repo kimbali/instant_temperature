@@ -1,14 +1,5 @@
-import React from 'react';
 import classNames from 'classnames';
-
-interface ButtonProps {
-  onClick?: () => void;
-  type?: 'button' | 'submit' | 'reset';
-  primary?: boolean;
-  secondary?: boolean;
-  children: React.ReactNode;
-  disabled?: boolean;
-}
+import { ButtonProps } from '~/utils/types';
 
 export function Button({
   onClick,

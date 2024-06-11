@@ -1,5 +1,4 @@
 import { Form, useActionData } from '@remix-run/react';
-import { Input } from '~/components/input';
 import {
   ActionFunction,
   LoaderFunction,
@@ -7,11 +6,13 @@ import {
   redirect,
 } from '@remix-run/node';
 import { ENV } from '~/utils';
-import { ErrorMessage, Title } from '~/components/text';
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button/ButtonLink';
 import authenticator from '~/services/auth.server';
 import { Auth } from '~/services/api';
+import { Title } from '~/components/text/Title';
+import { Input } from '~/components/input/Input';
+import { Button } from '~/components/button/Button';
+import ErrorMessage from '~/components/text/ErrorMessage';
 
 const authCtrl = new Auth();
 

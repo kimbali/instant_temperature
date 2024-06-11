@@ -1,8 +1,4 @@
-import React from 'react';
-
-interface TitleProps {
-  children: React.ReactNode;
-}
+import { TitleProps } from '~/utils/types';
 
 export function Title({ children }: TitleProps) {
   return (

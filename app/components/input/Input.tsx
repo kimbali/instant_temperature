@@ -1,11 +1,4 @@
-interface InputProps {
-  name: string;
-  type: string;
-  label: string;
-  placeholder?: string;
-  autoComplete?: string;
-  required?: boolean;
-}
+import { InputProps } from '~/utils/types';
 
 export function Input({
   name,

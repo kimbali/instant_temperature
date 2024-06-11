@@ -1,10 +1,11 @@
 import { Chart } from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { OneDay } from '~/utils/types';
 
 Chart.register(ChartDataLabels);
 
-export default function TemperatureChart({ data }) {
+export default function TemperatureChart({ data }: { data: OneDay[] }) {
   const forecastLabels = data.map(element => element.date);
   const forecastTemperatures = data.map(element => element.temperatureAvg);
 
@@ -35,7 +36,7 @@ export default function TemperatureChart({ data }) {
         display: true,
         color: 'white',
         align: 'top',
-        formatter: function (value) {
+        formatter: function (value: number) {
           return value + '°C';
         },
       },

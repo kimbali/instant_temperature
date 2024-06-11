@@ -1,10 +1,4 @@
-import React from 'react';
-interface CardProps {
-  title?: string;
-  text?: string | null;
-  children?: React.ReactNode;
-  className?: string;
-}
+import { CardProps } from '~/utils/types';
 
 export const Card = ({ children, className = '' }: CardProps) => {
   return (

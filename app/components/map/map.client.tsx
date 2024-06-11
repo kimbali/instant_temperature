@@ -1,4 +1,3 @@
-import type { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   MapContainer,
@@ -7,8 +6,10 @@ import {
   Popup,
   useMapEvents,
 } from 'react-leaflet';
-import { Text } from '../text';
+
 import CurrentTemperature from '../temperature/CurrentTemperature';
+import { Text } from '../text/Text';
+import { LatLngEx } from '~/utils/types';
 
 export function Map({
   height,
@@ -16,13 +17,13 @@ export function Map({
   position,
 }: {
   height: string;
-  handleSelect: (latlng: LatLngExpression) => void;
-  position: LatLngExpression;
+  handleSelect: (latlng: LatLngEx) => void;
+  position: LatLngEx;
 }) {
   const LocationMarker = () => {
-    const map = useMapEvents({
+    useMapEvents({
       click(event) {
-        handleSelect(event.latlng);
+        handleSelect({ lat: event.latlng.lat, lng: event.latlng.lng });
       },
     });
 

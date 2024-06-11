@@ -4,15 +4,8 @@ import {
   formatToHyphens,
 } from '~/utils/formatDate';
 import forecastData from '../moked/forecast.json';
-import { OneDay } from '~/routes/temperature';
 import { fetchWeatherApi } from 'openmeteo';
-
-interface TomorrowParams {
-  lat: string;
-  lng: string;
-  endDate?: Date;
-  totalDays?: number;
-}
+import { OneDay, TomorrowParams } from '~/utils/types';
 
 export class Tomorrow {
   apiKey = process.env.TOMORROW_KEY;
