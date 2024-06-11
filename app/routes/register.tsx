@@ -7,23 +7,26 @@ import {
 } from '@remix-run/node';
 import { ENV } from '~/utils';
 import { ButtonLink } from '~/components/button/ButtonLink';
-import authenticator from '~/services/auth.server';
 import { Auth } from '~/services/api';
 import { Title } from '~/components/text/Title';
 import { Input } from '~/components/input/Input';
 import { Button } from '~/components/button/Button';
 import { ErrorMessage } from '~/components/text/ErrorMessage';
+import { commitSession, getSession } from '~/services/session.server';
 
 const authCtrl = new Auth();
 
 /**
- * Redirect to home if the user is logged in
+ * Redirect to temperature if the user is logged in
  *
  */
 export const loader: LoaderFunction = async ({ request }) => {
-  await authenticator.isAuthenticated(request, {
-    successRedirect: ENV.ROUTES.HOME,
-  });
+  const session = await getSession(request.headers.get('cookie'));
+  const user = session.get('user');
+
+  if (user?.jwt) {
+    return redirect(ENV.ROUTES.TEMPERATURE);
+  }
 
   return null;
 };
@@ -33,7 +36,9 @@ export const loader: LoaderFunction = async ({ request }) => {
  *
  */
 export const action: ActionFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get('cookie'));
   const formData = await request.formData();
+
   const username = formData.get('username');
   const email = formData.get('email');
   const password = formData.get('password');
@@ -46,12 +51,18 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (response.error) {
     return json(
-      { error: response.error.message },
-      { status: response.error.status }
+      { error: response.error.message || 'Error while register' },
+      { status: response.error.status || 500 }
     );
-  }
+  } else {
+    session.set('token', response.jwt);
 
-  return redirect(ENV.ROUTES.LOGIN);
+    return redirect(ENV.ROUTES.TEMPERATURE, {
+      headers: {
+        'Set-Cookie': await commitSession(session),
+      },
+    });
+  }
 };
 
 export default function RegisterPage() {

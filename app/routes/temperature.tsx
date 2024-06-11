@@ -1,9 +1,4 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-  json,
-} from '@remix-run/node';
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from '@remix-run/node';
 import { useEffect, useState } from 'react';
 import MinMaxTemperatures from '~/components/temperature/MinMaxTemperatures';
 import { Tomorrow } from '~/services/api/tomorrow';
@@ -17,13 +12,6 @@ import { LatLngEx, TemperatureDate } from '~/utils/types';
 import { Button } from '~/components/button/Button';
 import { Subtitle } from '~/components/text/Subtitle';
 import { Title } from '~/components/text/Title';
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: 'New Remix App' },
-    { name: 'description', content: 'Welcome to Remix!' },
-  ];
-};
 
 const tomorrowCtrl = new Tomorrow();
 const geoLocationCtrl = new GeoLocation();

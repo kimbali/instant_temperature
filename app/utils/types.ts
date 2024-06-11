@@ -82,3 +82,14 @@ export interface TomorrowParams {
   endDate?: Date;
   totalDays?: number;
 }
+
+export interface UserLogin {
+  password: FormDataEntryValue;
+  identifier: FormDataEntryValue | null;
+}
+
+export interface UserRegister {
+  email: FormDataEntryValue;
+  password: FormDataEntryValue;
+  username: FormDataEntryValue;
+}

@@ -14,19 +14,3 @@ export const sessionStorage = createCookieSessionStorage({
 
 // you can also export the methods individually for your own usage
 export const { getSession, commitSession, destroySession } = sessionStorage;
-
-export type User = {
-  name: string;
-  token: string;
-}
-
-export type UserLogin = {
-  password: FormDataEntryValue;
-  identifier: FormDataEntryValue | null;
-}
-
-export type UserRegister = {
-  email: FormDataEntryValue;
-  password: FormDataEntryValue;
-  username: FormDataEntryValue;
-}

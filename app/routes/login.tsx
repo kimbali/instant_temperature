@@ -6,30 +6,24 @@ import { Input } from '~/components/input/Input';
 import { ErrorMessage } from '~/components/text/ErrorMessage';
 import { Title } from '~/components/text/Title';
 import { Auth } from '~/services/api';
-import { Token } from '~/services/api/token';
-import authenticator from '~/services/auth.server';
-import { sessionStorage } from '~/services/session.server';
+import { commitSession, getSession } from '~/services/session.server';
 import { ENV } from '~/utils';
 
 const authCtrl = new Auth();
-const tokenCtrl = new Token();
 
 /**
- * get the cookie and see if there are any errors that were
- * generated when attempting to login
+ * Redirect to temperature if the user is logged in
  *
  */
 export const loader: LoaderFunction = async ({ request }) => {
-  await authenticator.isAuthenticated(request, {
-    successRedirect: ENV.ROUTES.HOME,
-  });
+  const session = await getSession(request.headers.get('cookie'));
+  const user = session.get('user');
 
-  const session = await sessionStorage.getSession(
-    request.headers.get('Cookie')
-  );
+  if (user?.jwt) {
+    return redirect(ENV.ROUTES.TEMPERATURE);
+  }
 
-  const error = session.get('sessionErrorKey');
-  return json({ error });
+  return null;
 };
 
 /**
@@ -37,6 +31,8 @@ export const loader: LoaderFunction = async ({ request }) => {
  *
  */
 export const action: ActionFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get('cookie'));
+
   const formData = await request.formData();
   const username = formData.get('username');
   const email = formData.get('email');
@@ -45,6 +41,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (!password) {
     return json({ error: 'All fields are required' }, { status: 400 });
   }
+
   const response = await authCtrl.login({
     identifier: username || email,
     password,
@@ -56,14 +53,19 @@ export const action: ActionFunction = async ({ request }) => {
       { status: response.error.status || 500 }
     );
   } else {
-    tokenCtrl.setToken(response.jwt);
-    return redirect(ENV.ROUTES.TEMPERATURE);
+    session.set('token', response.jwt);
+
+    return redirect(ENV.ROUTES.TEMPERATURE, {
+      headers: {
+        'Set-Cookie': await commitSession(session),
+      },
+    });
   }
 };
 
 export default function LoginPage() {
   const actionData = useActionData();
-  console.log(3, actionData);
+
   return (
     <div className='w-full max-w-sm mx-auto pb-16 pt-24'>
       <Title>Login</Title>

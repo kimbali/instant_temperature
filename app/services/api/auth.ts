@@ -1,5 +1,5 @@
 import { ENV } from '~/utils';
-import { UserLogin, UserRegister } from '../session.server';
+import { UserLogin, UserRegister } from '~/utils/types';
 
 export class Auth {
   async register(data: UserRegister) {
