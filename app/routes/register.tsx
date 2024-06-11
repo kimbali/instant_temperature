@@ -12,7 +12,7 @@ import { Auth } from '~/services/api';
 import { Title } from '~/components/text/Title';
 import { Input } from '~/components/input/Input';
 import { Button } from '~/components/button/Button';
-import ErrorMessage from '~/components/text/ErrorMessage';
+import { ErrorMessage } from '~/components/text/ErrorMessage';
 
 const authCtrl = new Auth();
 

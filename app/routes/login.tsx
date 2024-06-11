@@ -52,18 +52,18 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (response.error) {
     return json(
-      { error: response.error.message },
-      { status: response.error.status }
+      { error: response.error.message || 'Error while login' },
+      { status: response.error.status || 500 }
     );
+  } else {
+    tokenCtrl.setToken(response.jwt);
+    return redirect(ENV.ROUTES.TEMPERATURE);
   }
-
-  tokenCtrl.setToken(response.jwt);
-  return redirect(ENV.ROUTES.TEMPERATURE);
 };
 
 export default function LoginPage() {
   const actionData = useActionData();
-
+  console.log(3, actionData);
   return (
     <div className='w-full max-w-sm mx-auto pb-16 pt-24'>
       <Title>Login</Title>
