@@ -13,15 +13,12 @@ export default function ForecastComponent() {
 
   if (!data) return null;
   return (
-    <div className='mt-10 mb-10 w-full overflow-y-scroll no-scrollbar flex'>
+    <div className='w-full lg:w-96 mt-4 lg:mt-0 scroll-cards scroll-px-1.5 snap-x mt-10 mb-10 overflow-y-scroll no-scrollbar flex'>
       {data.forecast.map((element: OneDay, index: number) => (
-        <Card
-          key={`forecast${index}`}
-          className='mr-10 mb-10 w-60 min-w-48 flex flex-col items-center justify-between'
-        >
-          <Text color='text-gray-50'>{element.day}</Text>
-          <Text className='mb-3'>{element.date}</Text>
-          <Text size='text-2xl'>
+        <Card key={`forecast${index}`}>
+          <Text color='text-gray-50 text-sm'>{element.day}</Text>
+          <Text className='mb-2 text-sm'>{element.date}</Text>
+          <Text size='text-sm'>
             <span className='text-cyan-600'>{element.temperatureMin}º</span> -{' '}
             <span className='text-red-600'>{element.temperatureMax}º</span>
           </Text>

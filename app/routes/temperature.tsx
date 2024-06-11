@@ -5,9 +5,7 @@ import {
   json,
 } from '@remix-run/node';
 import { useEffect, useState } from 'react';
-import CurrentTemperature from '~/components/temperature/CurrentTemperature';
 import ForecastComponent from '~/components/temperature/Forecast';
-import TrendComponent from '~/components/temperature/Trend';
 import { Title } from '~/components/text';
 import { Tomorrow } from '~/services/api/tomorrow';
 import { ClientOnly } from 'remix-utils/client-only';
@@ -16,6 +14,7 @@ import { Map } from '~/components/map/map.client';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import { commitSession, getSession } from '~/services/session.server';
 import { GeoLocation } from '~/services/api/geolocation';
+import TemperatureChart from '~/components/chart/TemperatureChart';
 
 export interface OneDay {
   day: string;
@@ -129,34 +128,43 @@ export default function TemperaturePage() {
   }, []);
 
   return (
-    <div className='pb-16 w-full'>
-      <Title>Instant temperature</Title>
+    <div className='pb-16 max-w-screen-lg mx-auto'>
+      <div className='flex flex-col items-center lg:items-start'>
+        <div className='w-full text-center '>
+          <Title>Instant temperature</Title>
+        </div>
 
-      <ClientOnly
-        fallback={
-          <div
-            id='skeleton'
-            style={{
-              height: mapHeight,
-              background: '#d1d1d1',
-            }}
-          />
-        }
-      >
-        {() => (
-          <Map
-            height={mapHeight}
-            handleSelect={handleSelect}
-            position={selectedLocation}
-          />
-        )}
-      </ClientOnly>
+        <div className='flex flex-col lg:flex-row w-full lg:justify-between'>
+          <div className='w-full lg:order-2 mb-4 lg:w-2/3 lg:order-none map self-center lg:self-auto'>
+            <ClientOnly
+              fallback={
+                <div
+                  className='w-full mr-3'
+                  id='skeleton'
+                  style={{
+                    height: mapHeight,
+                    background: '#d1d1d1',
+                  }}
+                />
+              }
+            >
+              {() => (
+                <Map
+                  height={mapHeight}
+                  handleSelect={handleSelect}
+                  position={selectedLocation}
+                />
+              )}
+            </ClientOnly>
+          </div>
 
-      <CurrentTemperature />
+          <div className='w-full lg:order-1 lg:w-2/3 lg:order-none temperature flex flex-col justify-center items-center'>
+            <TemperatureChart />
 
-      <ForecastComponent />
-
-      <TrendComponent />
+            <ForecastComponent />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

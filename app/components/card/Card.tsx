@@ -1,6 +1,4 @@
 import React from 'react';
-import { Subtitle, Text } from '../text';
-
 interface CardProps {
   title?: string;
   text?: string | null;
@@ -8,14 +6,14 @@ interface CardProps {
   className?: string;
 }
 
-export const Card = ({ title, text, children, className = '' }: CardProps) => {
+export const Card = ({ children, className = '' }: CardProps) => {
   return (
     <div
-      className={`p-6 border border-gray-200 rounded-lg shadow hover:bg-gray-100 bg-gray-800 border-gray-700 hover:bg-gray-700 ${className}`}
+      className={`border border-gray-200 rounded-lg shadow hover:bg-gray-100 bg-gray-800 border-gray-700 hover:bg-gray-700 snap-center m-2 mb-10 flex flex-col items-center justify-between ${className}`}
     >
-      {title && <Subtitle>{title}</Subtitle>}
-      <Text>{text}</Text>
-      {children}
+      <div className='w-20 py-4 px-2 flex flex-col items-center justify-between'>
+        {children}
+      </div>
     </div>
   );
 };

@@ -18,7 +18,7 @@ export function formatDate(dateString: string): string {
   
   const formattedDay = day.toString();
   
-  return `${formattedDay} ${month.substring(3,0)}`;
+  return `${formattedDay}${month.substring(3,0)}`;
 }
 
 /**
@@ -32,7 +32,7 @@ export function formatDate(dateString: string): string {
  */
 export function formatDay(dateString: string): string {
   const date = new Date(dateString);
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const dayIndex = date.getUTCDay();
   
   return daysOfWeek[dayIndex];

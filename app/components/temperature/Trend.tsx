@@ -13,12 +13,10 @@ export default function TrendComponent() {
 
   if (!data) return null;
   return (
-    <div className='mt-10 mb-10 w-full overflow-y-scroll no-scrollbar flex'>
+    <>
       {data.trend.map((element: OneDay, index: number) => (
-        <Card
-          key={`forecast${index}`}
-          className='mr-10 mb-10 w-60 min-w-48 flex flex-col items-center justify-between'
-        >
+        <Card key={`forecast${index}`}>
+          Trend
           <Text color='text-gray-50'>{element.day}</Text>
           <Text className='mb-3'>{element.date}</Text>
           <Text size='text-2xl'>
@@ -27,6 +25,6 @@ export default function TrendComponent() {
           </Text>
         </Card>
       ))}
-    </div>
+    </>
   );
 }

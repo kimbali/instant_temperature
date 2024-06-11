@@ -1,6 +1,5 @@
 import { LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import { Card } from '~/components/card';
 import { Text } from '~/components/text';
 import { TemperatureDate } from '~/routes/temperature';
 
@@ -13,14 +12,11 @@ export default function CurrentTemperature() {
 
   if (!data) return null;
   return (
-    <div className='w-full flex justify-center mb-16'>
-      <Card
-        title='Current temperature'
-        className='w-fit flex flex-col items-center justify-between'
-      >
-        <Text size='text-3xl mb-3'>{data.geoLocation}</Text>
-        <Text size='text-7xl'>{data.currentTemperature}ºC</Text>
-      </Card>
+    <div className='z-1 w-28 py-2 flex flex-col items-center px-2 absolute top-0 right-0 border border-gray-200 rounded-lg shadow hover:bg-gray-100 bg-gray-800 border-gray-700 hover:bg-gray-700'>
+      <Text size='text-1xl mb-1 text-cyan-400 text-center'>
+        {data.geoLocation}
+      </Text>
+      <Text size='text-2xl bold'>{data.currentTemperature}ºC</Text>
     </div>
   );
 }

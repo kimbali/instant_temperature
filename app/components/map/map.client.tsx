@@ -8,6 +8,7 @@ import {
   useMapEvents,
 } from 'react-leaflet';
 import { Text } from '../text';
+import CurrentTemperature from '../temperature/CurrentTemperature';
 
 export function Map({
   height,
@@ -28,20 +29,28 @@ export function Map({
     return position === null ? null : (
       <Marker position={position}>
         <Popup>
-          A pretty CSS3 popup. <br /> Easily customizable.
+          <Text>
+            <span>LAT: {position?.lat}</span>, LNG: <span>{position?.lng}</span>
+          </Text>
         </Popup>
       </Marker>
     );
   };
 
   return (
-    <div style={{ height }} className='mb-10'>
+    <div
+      style={{ height }}
+      className='relative w-full border border-gray-200 rounded-lg'
+    >
       <MapContainer
         style={{
+          width: '100%',
           height: '100%',
+          borderRadius: '0.5rem',
+          zIndex: '0',
         }}
         center={position}
-        zoom={13}
+        zoom={12}
         scrollWheelZoom={false}
       >
         <TileLayer
@@ -52,9 +61,11 @@ export function Map({
         <LocationMarker />
       </MapContainer>
 
-      <Text>
-        <span>Lat: {position?.lat}</span>, Lng: <span>{position?.lng}</span>
+      <Text className='p-2 z-1 text-xs absolute bottom-0 right-0 border border-gray-200 rounded-lg shadow hover:bg-gray-100 bg-gray-800 border-gray-700 hover:bg-gray-700'>
+        <span>LAT: {position?.lat}</span>, LNG: <span>{position?.lng}</span>
       </Text>
+
+      <CurrentTemperature />
     </div>
   );
 }
