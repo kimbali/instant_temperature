@@ -1,36 +1,34 @@
-import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { useLoaderData, Form } from '@remix-run/react';
+import { LoaderFunction, json } from '@remix-run/node';
+import { Link, useLoaderData } from '@remix-run/react';
+import { ButtonLink } from '~/components/button/ButtonLink';
+import { getSession } from '~/services/session.server';
+import { ENV } from '~/utils';
 
 /**
- * check the user to see if there is an active session, if not
- * redirect to login page
+ * Redirect to temperature if the user is logged in
  *
  */
-export const loader: LoaderFunction = async ({ request }) => {};
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get('cookie'));
+  const user = session.get('user');
 
-/**
- *  handle the logout request
- *
- */
-export const action: ActionFunction = async ({ request }) => {};
+  return json({ user });
+};
 
 export default function Index() {
   const data = useLoaderData();
 
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
-      <h2 className='mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl'>
-        Welcome
+    <div className='pb-16 max-w-screen-lg mx-auto flex items-center flex-col'>
+      <h2 className='mb-8 mt-8 text-4xl text-cyan-600 font-extrabold leading-none tracking-tight  md:text-5xl lg:text-6xl'>
+        Instant temperature
       </h2>
 
-      <Form method='post'>
-        <button
-          className='shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded'
-          type='submit'
-        >
-          Log out
-        </button>
-      </Form>
+      {data?.user ? (
+        <ButtonLink to={ENV.ROUTES.TEMPERATURE}>Select a location</ButtonLink>
+      ) : (
+        <ButtonLink to={ENV.ROUTES.LOGIN}>Login</ButtonLink>
+      )}
     </div>
   );
 }

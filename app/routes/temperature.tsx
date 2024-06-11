@@ -1,4 +1,9 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+  redirect,
+} from '@remix-run/node';
 import { useEffect, useState } from 'react';
 import MinMaxTemperatures from '~/components/temperature/MinMaxTemperatures';
 import { Tomorrow } from '~/services/api/tomorrow';
@@ -12,6 +17,8 @@ import { LatLngEx, TemperatureDate } from '~/utils/types';
 import { Button } from '~/components/button/Button';
 import { Subtitle } from '~/components/text/Subtitle';
 import { Title } from '~/components/text/Title';
+import { ENV } from '~/utils';
+import { Text } from '~/components/text/Text';
 
 const tomorrowCtrl = new Tomorrow();
 const geoLocationCtrl = new GeoLocation();
@@ -19,6 +26,12 @@ const geoLocationCtrl = new GeoLocation();
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const session = await getSession(request.headers.get('cookie'));
+    const token = session.get('token');
+
+    if (!token) {
+      return redirect(ENV.ROUTES.HOME);
+    }
+
     const latitude = session.get('latitude') || 41.38694691885317;
     const longitude = session.get('longitude') || 2.1676698133663157;
 
@@ -31,12 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ]);
 
     if (resForecast.error || resTrend.error || !geoLocation) {
-      const status = resForecast.error
-        ? resForecast.error.status
-        : resTrend.error
-        ? resTrend.error.status
-        : 500;
-      return json({ error: 'Error while fetching data' }, { status });
+      return json({ error: 'Error while fetching data' });
     }
 
     return json({
@@ -99,12 +107,17 @@ export default function TemperaturePage() {
   return (
     <div className='pb-16 max-w-screen-lg mx-auto'>
       <div className='flex flex-col items-center lg:items-start'>
-        <div className='w-full text-center '>
+        <div className='w-full text-center'>
           <Title>Instant temperature</Title>
         </div>
 
+        <Text className='w-full text-center mb-10 text-cyan-500 text-xl'>
+          Select a point on the map to get the current temperature, the trend of
+          the last week and the location forecast for the following days
+        </Text>
+
         <div className='flex flex-col lg:flex-row w-full lg:justify-between mb-8'>
-          <div className='w-full lg:order-2 mb-4 lg:w-2/3 lg:order-none map self-center lg:self-auto mb-8'>
+          <div className='w-full lg:order-1 mb-4 lg:w-1/2 lg:order-none map self-center lg:self-auto mb-8'>
             <ClientOnly
               fallback={
                 <div
@@ -127,8 +140,12 @@ export default function TemperaturePage() {
             </ClientOnly>
           </div>
 
-          <div className='w-full lg:order-1 lg:w-2/3 lg:order-none temperature flex flex-col justify-center items-center'>
-            <div className='flex'>
+          <div className='w-full lg:order-2 lg:w-1/2 lg:order-none temperature flex flex-col justify-center items-center'>
+            <Subtitle>
+              {showTrend ? 'Trend' : 'Forecast'} in {data.geoLocation}
+            </Subtitle>
+
+            <div className='flex mb-3'>
               <Button
                 onClick={() => setShowTrend(true)}
                 primary
@@ -144,10 +161,6 @@ export default function TemperaturePage() {
                 Forecast
               </Button>
             </div>
-
-            <Subtitle>
-              {showTrend ? 'Trend' : 'Forecast'} in {data.geoLocation}
-            </Subtitle>
 
             <TemperatureChart data={showTrend ? data.trend : data.forecast} />
             <MinMaxTemperatures data={showTrend ? data.trend : data.forecast} />

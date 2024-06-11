@@ -9,6 +9,7 @@ export const ENV = {
     HOME: '/',
     REGISTER: '/register',
     LOGIN: '/login',
+    LOGOUT: '/logout',
     TEMPERATURE: '/temperature',
   },
   TOKEN: 'some_token'

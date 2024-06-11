@@ -17,9 +17,9 @@ const authCtrl = new Auth();
  */
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request.headers.get('cookie'));
-  const user = session.get('user');
+  const token = session.get('token');
 
-  if (user?.jwt) {
+  if (token) {
     return redirect(ENV.ROUTES.TEMPERATURE);
   }
 
@@ -54,8 +54,9 @@ export const action: ActionFunction = async ({ request }) => {
     );
   } else {
     session.set('token', response.jwt);
+    session.set('user', response.user);
 
-    return redirect(ENV.ROUTES.TEMPERATURE, {
+    return redirect(ENV.ROUTES.HOME, {
       headers: {
         'Set-Cookie': await commitSession(session),
       },
