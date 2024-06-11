@@ -1,23 +1,12 @@
 import { Chart } from 'chart.js/auto';
-import { LoaderFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { TemperatureDate } from '~/routes/temperature';
 import { Line } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 Chart.register(ChartDataLabels);
 
-export const loader: LoaderFunction = async ({ routeLoaderData }) => {
-  return routeLoaderData;
-};
-
-export default function TemperatureChart() {
-  const data: TemperatureDate = useLoaderData();
-
-  const forecastLabels = data.forecast.map(element => element.date);
-  const forecastTemperatures = data.forecast.map(
-    element => element.temperatureAvg
-  );
+export default function TemperatureChart({ data }) {
+  const forecastLabels = data.map(element => element.date);
+  const forecastTemperatures = data.map(element => element.temperatureAvg);
 
   const chartData = {
     labels: forecastLabels,
@@ -68,7 +57,7 @@ export default function TemperatureChart() {
   };
 
   return (
-    <div className='relative w-full lg:w-96 h-52 mb-8'>
+    <div className='relative w-full lg:w-96 h-auto mb-8'>
       <Line data={chartData} options={options} />
     </div>
   );

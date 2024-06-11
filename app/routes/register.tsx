@@ -57,7 +57,7 @@ export default function RegisterPage() {
   const actionData = useActionData();
 
   return (
-    <div className='w-full max-w-sm'>
+    <div className='w-full max-w-sm mx-auto pb-16 pt-24'>
       <Title>Register</Title>
 
       <Form method='post'>

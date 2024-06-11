@@ -5,8 +5,8 @@ import {
   json,
 } from '@remix-run/node';
 import { useEffect, useState } from 'react';
-import ForecastComponent from '~/components/temperature/Forecast';
-import { Title } from '~/components/text';
+import MinMaxTemperatures from '~/components/temperature/MinMaxTemperatures';
+import { Subtitle, Title } from '~/components/text';
 import { Tomorrow } from '~/services/api/tomorrow';
 import { ClientOnly } from 'remix-utils/client-only';
 import type { LatLngExpression } from 'leaflet';
@@ -15,6 +15,7 @@ import { useFetcher, useLoaderData } from '@remix-run/react';
 import { commitSession, getSession } from '~/services/session.server';
 import { GeoLocation } from '~/services/api/geolocation';
 import TemperatureChart from '~/components/chart/TemperatureChart';
+import { Button } from '~/components/button';
 
 export interface OneDay {
   day: string;
@@ -100,6 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function TemperaturePage() {
   const mapHeight = '400px';
   const data = useLoaderData<typeof loader>();
+  const [showTrend, setShowTrend] = useState(false);
 
   const [selectedLocation, setSelectedLocation] = useState<LatLngExpression>({
     lat: data?.latitude,
@@ -134,8 +136,8 @@ export default function TemperaturePage() {
           <Title>Instant temperature</Title>
         </div>
 
-        <div className='flex flex-col lg:flex-row w-full lg:justify-between'>
-          <div className='w-full lg:order-2 mb-4 lg:w-2/3 lg:order-none map self-center lg:self-auto'>
+        <div className='flex flex-col lg:flex-row w-full lg:justify-between mb-8'>
+          <div className='w-full lg:order-2 mb-4 lg:w-2/3 lg:order-none map self-center lg:self-auto mb-8'>
             <ClientOnly
               fallback={
                 <div
@@ -159,9 +161,29 @@ export default function TemperaturePage() {
           </div>
 
           <div className='w-full lg:order-1 lg:w-2/3 lg:order-none temperature flex flex-col justify-center items-center'>
-            <TemperatureChart />
+            <div className='flex'>
+              <Button
+                onClick={() => setShowTrend(true)}
+                primary
+                disabled={showTrend}
+              >
+                Trend
+              </Button>
+              <Button
+                onClick={() => setShowTrend(false)}
+                primary
+                disabled={!showTrend}
+              >
+                Forecast
+              </Button>
+            </div>
 
-            <ForecastComponent />
+            <Subtitle>
+              {showTrend ? 'Trend' : 'Forecast'} in {data.geoLocation}
+            </Subtitle>
+
+            <TemperatureChart data={showTrend ? data.trend : data.forecast} />
+            <MinMaxTemperatures data={showTrend ? data.trend : data.forecast} />
           </div>
         </div>
       </div>

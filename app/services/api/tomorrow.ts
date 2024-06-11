@@ -95,7 +95,7 @@ export class Tomorrow {
         ).map(t => new Date((t + utcOffsetSeconds) * 1000)),
         temperature2mMax: daily.variables(0)!.valuesArray()!,
         temperature2mMin: daily.variables(1)!.valuesArray()!,
-        temperature2mMean: daily.variables(2)!.valuesArray()!,
+        temperatureAvg: daily.variables(2)!.valuesArray()!,
       },
     };
 
@@ -108,7 +108,7 @@ export class Tomorrow {
           date: formatDate(weatherData.daily.time[i].toISOString()),
           temperatureMax: Math.round(weatherData.daily.temperature2mMax[i]),
           temperatureMin: Math.round(weatherData.daily.temperature2mMin[i]),
-          temperatureMean: Math.round(weatherData.daily.temperature2mMean[i]),
+          temperatureAvg: Math.round(weatherData.daily.temperatureAvg[i]),
         });
       }
     }
