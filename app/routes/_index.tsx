@@ -1,6 +1,7 @@
 import { LoaderFunction, json } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { useLoaderData } from '@remix-run/react';
 import { ButtonLink } from '~/components/button/ButtonLink';
+import { Text } from '~/components/text/Text';
 import { getSession } from '~/services/session.server';
 import { ENV } from '~/utils';
 
@@ -24,10 +25,15 @@ export default function Index() {
         Instant temperature
       </h2>
 
+      <Text className='w-full text-center mb-10 text-cyan-500 text-xl'>
+        Select a point on the map to get the current temperature, the trend of
+        the last week and the location forecast for the following days
+      </Text>
+
       {data?.user ? (
         <ButtonLink to={ENV.ROUTES.TEMPERATURE}>Select a location</ButtonLink>
       ) : (
-        <ButtonLink to={ENV.ROUTES.LOGIN}>Login</ButtonLink>
+        <ButtonLink to={ENV.ROUTES.REGISTER}>Register a user</ButtonLink>
       )}
     </div>
   );
