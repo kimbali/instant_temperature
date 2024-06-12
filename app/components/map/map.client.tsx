@@ -20,6 +20,8 @@ export function Map({
   handleSelect: (latlng: LatLngEx) => void;
   position: LatLngEx;
 }) {
+  const defaultPosition = { lat: 41.38694691885317, lng: 2.1676698133663157 };
+
   const LocationMarker = () => {
     useMapEvents({
       click(event) {
@@ -27,7 +29,7 @@ export function Map({
       },
     });
 
-    return position === null ? null : (
+    return position === null || !position.lat || !position.lng ? null : (
       <Marker position={position}>
         <Popup>
           <Text>
@@ -50,7 +52,7 @@ export function Map({
           borderRadius: '0.5rem',
           zIndex: '0',
         }}
-        center={position}
+        center={!position.lat || !position.lng ? defaultPosition : position}
         zoom={12}
         scrollWheelZoom={false}
       >

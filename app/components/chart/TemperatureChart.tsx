@@ -6,17 +6,16 @@ import { OneDay } from '~/utils/types';
 Chart.register(ChartDataLabels);
 
 export default function TemperatureChart({ data }: { data: OneDay[] }) {
-  const forecastLabels = data.map(element => element.date);
-  const forecastTemperatures = data.map(element => element.temperatureAvg);
+  const labels = data?.map(element => element.date);
+  const temperatures = data?.map(element => element.temperatureAvg);
 
   const chartData = {
-    labels: forecastLabels,
+    labels,
     datasets: [
       {
         borderWidth: 2,
-        // fill: true,
-        label: 'Forecast °C',
-        data: forecastTemperatures,
+        label: '°C',
+        data: temperatures,
         borderColor: 'rgba(119, 230, 255, 0.2)',
         backgroundColor: 'rgba(0, 193, 255, 0.2)',
         pointBackgroundColor: 'rgba(119, 230, 255, 0.2)',

@@ -19,6 +19,7 @@ import { Subtitle } from '~/components/text/Subtitle';
 import { Title } from '~/components/text/Title';
 import { ENV } from '~/utils';
 import { Text } from '~/components/text/Text';
+import { ErrorMessage } from '~/components/text/ErrorMessage';
 
 const tomorrowCtrl = new Tomorrow();
 const geoLocationCtrl = new GeoLocation();
@@ -37,14 +38,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const latLng = { lat: latitude, lng: longitude };
 
-    const [resForecast, resTrend, geoLocation] = await Promise.all([
-      tomorrowCtrl.getForecast(latLng),
-      tomorrowCtrl.getTrend(latLng),
+    const [geoLocation, resTrend, resForecast] = await Promise.all([
       geoLocationCtrl.getLocationName(latLng),
+      tomorrowCtrl.getTrend(latLng),
+      tomorrowCtrl.getForecast(latLng),
     ]);
 
     if (resForecast.error || resTrend.error || !geoLocation) {
-      return json({ error: 'Error while fetching data' });
+      return json({ error: 'Error while fetching data, try again tomorrow' });
     }
 
     return json({
@@ -151,16 +152,18 @@ export default function TemperaturePage() {
                 primary
                 disabled={showTrend}
               >
-                Trend
+                {'<'} Trend
               </Button>
               <Button
                 onClick={() => setShowTrend(false)}
                 primary
                 disabled={!showTrend}
               >
-                Forecast
+                Forecast {'>'}
               </Button>
             </div>
+
+            <ErrorMessage hasError={data?.error}>{data?.error}</ErrorMessage>
 
             <TemperatureChart data={showTrend ? data.trend : data.forecast} />
             <MinMaxTemperatures data={showTrend ? data.trend : data.forecast} />

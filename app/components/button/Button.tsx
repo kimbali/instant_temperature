@@ -18,7 +18,7 @@ export function Button({
         {
           ['bg-cyan-600 hover:bg-cyan-400']: primary && !disabled,
           ['bg-cyan-500 hover:bg-cyan-400']: !primary && !disabled,
-          ['bg-cyan-900 hover:bg-cyan-900']: disabled,
+          ['bg-cyan-800 hover:bg-cyan-800']: disabled,
         }
       )}
     >

@@ -5,7 +5,7 @@
  * @returns A formatted date string in the format "Day Month".
  * 
  * @example
- * formatDate("2024-06-09T18:35:00Z"); // "9 June"
+ * formatDate("2024-06-09T18:35:00Z"); // "9 Jun"
  */
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -18,7 +18,7 @@ export function formatDate(dateString: string): string {
   
   const formattedDay = day.toString();
   
-  return `${formattedDay}${month.substring(3,0)}`;
+  return `${formattedDay} ${month.substring(3,0)}`;
 }
 
 /**
@@ -28,7 +28,7 @@ export function formatDate(dateString: string): string {
  * @returns The day of the week corresponding to the given date string.
  * 
  * @example
- * formatDay("2024-06-09T18:35:00Z"); // "Sunday"
+ * formatDay("2024-06-09T18:35:00Z"); // "Sun"
  */
 export function formatDay(dateString: string): string {
   const date = new Date(dateString);
