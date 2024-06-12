@@ -1,5 +1,4 @@
 import { formatDate, formatDay, formatToHyphens } from '~/utils/formatDate';
-import forecastData from '../moked/forecast.json';
 import { fetchWeatherApi } from 'openmeteo';
 import { OneDay, TomorrowParams } from '~/utils/types';
 
@@ -17,7 +16,6 @@ export class Tomorrow {
       }
 
       const result = await response.json();
-      // const result = forecastData;
 
       const forecast: OneDay[] = result?.timelines?.daily?.map(element => {
         return {
@@ -38,24 +36,38 @@ export class Tomorrow {
 
       return data;
     } catch (error) {
-      return {
-        error: {
-          message: 'Server is down. Please try again later.',
-          status: 503,
-        },
-      };
+      try {
+        const startDate = new Date();
+        const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const forecast = await this.getTrend({ lat, lng, isForecast: true, endDate });
+        
+        return {
+          currentTemperature: forecast.temperatureAvg,
+          forecast,
+          
+        };
+      } catch (error) {
+        return {
+          error: {
+            message: 'Tomorrow.io server is down. Please try again later.',
+            status: 503,
+          },
+        };
+      }
     }
   }
-
+  
   async getTrend({
     lat,
     lng,
     endDate = new Date(),
     totalDays = 7,
+    isForecast = false,
   }: TomorrowParams) {
     const startDate = new Date(
       endDate.getTime() - totalDays * 24 * 60 * 60 * 1000
     );
+    
     try {
       const params = {
         latitude: lat,
@@ -69,7 +81,8 @@ export class Tomorrow {
         ],
         timezone: 'Europe/London',
       };
-      const url = 'https://archive-api.open-meteo.com/v1/archive';
+      
+      const url = isForecast ? 'https://api.open-meteo.com/v1/forecast' : 'https://archive-api.open-meteo.com/v1/archive'
       const responses = await fetchWeatherApi(url, params);
 
       // Helper function to form time ranges

@@ -44,8 +44,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       tomorrowCtrl.getForecast(latLng),
     ]);
 
-    if (resForecast.error || resTrend.error || !geoLocation) {
-      return json({ error: 'Error while fetching data, try again tomorrow' });
+    if (resForecast.error || resTrend.error) {
+      return json({
+        error: 'Error while fetching data, try again tomorrow',
+        geoLocation: geoLocation || '',
+      });
     }
 
     return json({
@@ -57,7 +60,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       geoLocation,
     });
   } catch (error) {
-    console.error('Error in loader:', error);
     return json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -152,14 +154,14 @@ export default function TemperaturePage() {
                 primary
                 disabled={showTrend}
               >
-                {'<'} Trend
+                {!showTrend ? '<' : ''} Trend
               </Button>
               <Button
                 onClick={() => setShowTrend(false)}
                 primary
                 disabled={!showTrend}
               >
-                Forecast {'>'}
+                Forecast {showTrend ? '>' : ''}
               </Button>
             </div>
 

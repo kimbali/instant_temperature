@@ -81,6 +81,7 @@ export interface TomorrowParams {
   lng: string;
   endDate?: Date;
   totalDays?: number;
+  isForecast?: boolean;
 }
 
 export interface UserLogin {
