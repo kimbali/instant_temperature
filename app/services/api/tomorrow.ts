@@ -2,13 +2,20 @@ import { formatDate, formatDay, formatToHyphens } from '~/utils/formatDate';
 import { fetchWeatherApi } from 'openmeteo';
 import { OneDay, TomorrowParams } from '~/utils/types';
 
+/**
+ * Class to interact with the Tomorrow.io and Open-Meteo APIs for weather data.
+ */
 export class Tomorrow {
   apiKey = process.env.TOMORROW_KEY;
 
+  /**
+   * Fetches the weather forecast from Tomorrow.io API.
+   * @param {TomorrowParams} param0 - Parameters including latitude and longitude.
+   * 
+   */
   async getForecast({ lat, lng }: TomorrowParams) {
     try {
       const url = `https://api.tomorrow.io/v4/weather/forecast?location=${lat},${lng}&apikey=${this.apiKey}`;
-
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -39,12 +46,16 @@ export class Tomorrow {
       try {
         const startDate = new Date();
         const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-        const forecast = await this.getTrend({ lat, lng, isForecast: true, endDate });
-        
+        const forecast = await this.getTrend({
+          lat,
+          lng,
+          isForecast: true,
+          endDate,
+        });
+
         return {
-          currentTemperature: forecast.temperatureAvg,
+          currentTemperature: forecast[0].temperatureAvg,
           forecast,
-          
         };
       } catch (error) {
         return {
@@ -56,7 +67,12 @@ export class Tomorrow {
       }
     }
   }
-  
+
+  /**
+   * Fetches the weather trend from Open-Meteo API.
+   * @param {TomorrowParams} param0 - Parameters including latitude, longitude, end date, total days, and if it is a forecast request.
+   * 
+   */
   async getTrend({
     lat,
     lng,
@@ -67,7 +83,7 @@ export class Tomorrow {
     const startDate = new Date(
       endDate.getTime() - totalDays * 24 * 60 * 60 * 1000
     );
-    
+
     try {
       const params = {
         latitude: lat,
@@ -81,8 +97,10 @@ export class Tomorrow {
         ],
         timezone: 'Europe/London',
       };
-      
-      const url = isForecast ? 'https://api.open-meteo.com/v1/forecast' : 'https://archive-api.open-meteo.com/v1/archive'
+
+      const url = isForecast
+        ? 'https://api.open-meteo.com/v1/forecast'
+        : 'https://archive-api.open-meteo.com/v1/archive';
       const responses = await fetchWeatherApi(url, params);
 
       // Helper function to form time ranges

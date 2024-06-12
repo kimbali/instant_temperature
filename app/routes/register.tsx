@@ -7,7 +7,7 @@ import {
 } from '@remix-run/node';
 import { ENV } from '~/utils';
 import { ButtonLink } from '~/components/button/ButtonLink';
-import { Auth } from '~/services/api';
+import { Auth } from '~/services/api/auth';
 import { Title } from '~/components/text/Title';
 import { Input } from '~/components/input/Input';
 import { Button } from '~/components/button/Button';

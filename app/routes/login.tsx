@@ -5,7 +5,7 @@ import { ButtonLink } from '~/components/button/ButtonLink';
 import { Input } from '~/components/input/Input';
 import { ErrorMessage } from '~/components/text/ErrorMessage';
 import { Title } from '~/components/text/Title';
-import { Auth } from '~/services/api';
+import { Auth } from '~/services/api/auth';
 import { commitSession, getSession } from '~/services/session.server';
 import { ENV } from '~/utils';
 

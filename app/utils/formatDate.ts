@@ -52,6 +52,17 @@ export function formatToISOString(dateString: Date): string {
   return dateString.toISOString().split('T')[0] + "T00:00:00Z";
 }
 
+/**
+ * Formats a Date object to a string in the format 'YYYY-MM-DD'.
+ *
+ * @param {Date} date - The Date object to format.
+ * @returns {string} - The formatted date string in 'YYYY-MM-DD' format.
+ *
+ * @example
+ * const date = new Date(2024, 5, 12); // June 12, 2024
+ * const formattedDate = formatToHyphens(date);
+ * console.log(formattedDate); // Output: '2024-06-12'
+ */
 export function formatToHyphens(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); 
